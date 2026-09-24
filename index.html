@@ -15,7 +15,7 @@
   --knob:#eef2f9; --led:#d42a34; --led-off:#c9d3e6; --line:#dfe4ee;
 }
 *,*::before,*::after{box-sizing:border-box}
-body{background:var(--body);color:var(--ink);-webkit-tap-highlight-color:transparent;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+body{background:var(--body);color:var(--ink);-webkit-tap-highlight-color:transparent}
 .wrap{width:100%;max-width:520px;margin:0 auto;padding:26px 18px 30px}
 h1{font:800 clamp(34px,9vw,46px)/.95 var(--naslovni);text-transform:uppercase;color:var(--ink);margin:0 0 6px}
 h1::after{content:"";display:block;width:56px;height:4px;background:var(--led);margin-top:10px}
@@ -71,10 +71,10 @@ h2{font-size:1rem;font-weight:600;margin:24px 0 0;color:var(--soft)}
 .ghost{background:transparent !important;color:var(--ink) !important;border:2px solid var(--ink) !important}
 
 /* tabs */
-nav.kartice{z-index:20;position:fixed;left:0;right:0;bottom:0;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--ink);display:flex;justify-content:center}
-nav.kartice div{display:flex;max-width:460px;width:100%}
-nav.kartice button{flex:1;border:none;background:none;color:var(--body);opacity:.6;padding:16px 0;font-size:1rem;font-weight:600}
-nav.kartice button.on{opacity:1;box-shadow:inset 0 3px 0 var(--led)}
+nav.kartice{margin-top:14px;background:var(--ink);border-radius:14px;overflow:hidden;box-shadow:var(--sjena)}
+nav.kartice div{display:flex}
+nav.kartice button{flex:1;border:none;background:none;color:#fff;opacity:.7;padding:16px 0;font-size:1.05rem;font-weight:800}
+nav.kartice button.on{opacity:1;box-shadow:inset 0 -4px 0 var(--led)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -158,13 +158,13 @@ nav.kartice button.on{opacity:1;box-shadow:inset 0 3px 0 var(--led)}
       </div>
     </div>
   </section>
-</div>
 
-<nav class="kartice" aria-label="Alati"><div>
-  <button class="on" data-tab="t-metro">Metronom</button>
-  <button data-tab="t-tuner">Štimer</button>
-  <button data-tab="t-chords">Akordi</button>
-</div></nav>
+  <nav class="kartice" aria-label="Alati"><div>
+    <button class="on" data-tab="t-metro">Metronom</button>
+    <button data-tab="t-tuner">Štimer</button>
+    <button data-tab="t-chords">Akordi</button>
+  </div></nav>
+</div>
 
 <footer class="ab-dno"></footer>
 <script src="zajednicko/app-bonic.js?v=4d4b870e"></script>
