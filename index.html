@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tamburaš</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪕</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --body:#8fc2ae; --panel:#a9d3c2; --ink:#12322a; --soft:#2f5a4d;
+  --knob:#f3ead2; --led:#ff5a3c; --led-off:#6d9a88; --line:#5f927e;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --body:#132a26; --panel:#1c3a34; --ink:#d9efe5; --soft:#94bcae;
+    --knob:#e8dfc4; --led:#ff6a4a; --led-off:#2f544b; --line:#2f544b;
+  }
+}
+:root[data-theme="dark"]{
+  --body:#132a26; --panel:#1c3a34; --ink:#d9efe5; --soft:#94bcae;
+  --knob:#e8dfc4; --led:#ff6a4a; --led-off:#2f544b; --line:#2f544b;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--body);color:var(--ink);
+  font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-tap-highlight-color:transparent}
+.wrap{max-width:460px;margin:0 auto;padding:20px 18px 110px}
+h1{font-size:1.1rem;font-weight:600;margin:4px 0 18px;color:var(--soft)}
+.panel{background:var(--panel);border-radius:22px;padding:22px 18px;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 1px 0 var(--line)}
+section{display:none}
+section.on{display:block}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--led);outline-offset:2px}
+
+/* metronome */
+.leds{display:flex;gap:10px;justify-content:center;margin:6px 0 22px;flex-wrap:wrap}
+.led{width:26px;height:26px;border-radius:50%;background:var(--led-off);transition:background .05s}
+.led.acc{width:34px;height:34px}
+.led.hit{background:var(--led);box-shadow:0 0 18px var(--led)}
+.bpm{text-align:center;font-size:clamp(5rem,26vw,7.5rem);font-weight:800;line-height:.9;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.bpm small{display:block;font-size:1rem;font-weight:400;letter-spacing:0;color:var(--soft);margin-top:8px}
+.row{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:18px}
+.knob{background:var(--knob);color:#12322a;border:none;border-radius:999px;min-width:54px;height:54px;font-size:1.3rem;font-weight:600;padding:0 16px;
+  box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.knob:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+input[type=range]{width:100%;margin-top:18px;accent-color:var(--ink)}
+.go{display:block;width:100%;margin-top:20px;height:64px;border:none;border-radius:18px;background:var(--ink);color:var(--body);font-size:1.25rem;font-weight:800}
+.go.running{background:var(--led);color:#fff}
+.opts{display:flex;gap:12px;margin-top:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+select{font:inherit;background:var(--knob);color:#12322a;border:none;border-radius:12px;padding:10px 12px}
+label{font-size:.95rem;color:var(--soft)}
+
+/* tuner */
+.note{text-align:center;font-size:clamp(5rem,28vw,8rem);font-weight:800;line-height:1}
+.note sub{font-size:.3em;font-weight:600;vertical-align:baseline;color:var(--soft)}
+.hz{text-align:center;color:var(--soft);font-variant-numeric:tabular-nums;min-height:1.4em}
+.gauge{display:block;width:100%;max-width:320px;margin:10px auto 0}
+.msg{text-align:center;color:var(--soft);font-size:.95rem;margin:12px 0 0;line-height:1.45}
+.strings{display:grid;grid-template-columns:repeat(var(--n,6),1fr);gap:8px;margin-top:14px}
+.strings .knob.match{background:var(--led);color:#fff}
+.strings .knob small{display:block;font-size:.7rem;font-weight:400;opacity:.75}
+.strings .knob{min-width:0;padding:0;font-size:1.05rem}
+h2{font-size:1rem;font-weight:600;margin:24px 0 0;color:var(--soft)}
+
+/* chords */
+.keys{display:flex;gap:10px}
+.keys select{flex:1}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;margin-top:16px}
+.chord{background:var(--knob);color:#12322a;border:none;border-radius:16px;padding:14px 6px;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.chord b{display:block;font-size:1.35rem}
+.chord span{font-size:.85rem;opacity:.7}
+.chord.lit{background:var(--led);color:#fff}
+.prog{display:flex;gap:8px;margin-top:14px}
+.prog .chord{flex:1;min-width:0}
+.two{display:flex;gap:10px;margin-top:16px}
+.two .go{margin-top:0;height:56px;font-size:1.05rem}
+.ghost{background:transparent !important;color:var(--ink) !important;border:2px solid var(--ink) !important}
+
+/* tabs */
+nav{position:fixed;left:0;right:0;bottom:0;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--ink);display:flex;justify-content:center}
+nav div{display:flex;max-width:460px;width:100%}
+nav button{flex:1;border:none;background:none;color:var(--body);opacity:.6;padding:16px 0;font-size:1rem;font-weight:600}
+nav button.on{opacity:1;box-shadow:inset 0 3px 0 var(--led)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Tamburaš</h1>
+
+  <section id="t-metro" class="on">
+    <div class="panel">
+      <div class="leds" id="leds"></div>
+      <div class="bpm"><span id="bpmVal">100</span><small id="tempoName">Moderato</small></div>
+      <input type="range" id="bpmRange" min="30" max="250" value="100" aria-label="Tempo">
+      <div class="row">
+        <button class="knob" data-d="-5" aria-label="Smanji za 5">−5</button>
+        <button class="knob" data-d="-1" aria-label="Smanji za 1">−1</button>
+        <button class="knob" id="tap">Tap</button>
+        <button class="knob" data-d="1" aria-label="Povećaj za 1">+1</button>
+        <button class="knob" data-d="5" aria-label="Povećaj za 5">+5</button>
+      </div>
+      <div class="opts">
+        <label>Takt
+          <select id="beats">
+            <option value="2">2/4</option><option value="3">3/4</option>
+            <option value="4" selected>4/4</option><option value="5">5/4</option>
+            <option value="6">6/8</option><option value="7">7/8</option>
+          </select>
+        </label>
+        <label><input type="checkbox" id="accent" checked> Naglasi prvu dobu</label>
+      </div>
+      <button class="go" id="metroGo">Pokreni</button>
+    </div>
+  </section>
+
+  <section id="t-tuner">
+    <div class="panel">
+      <div class="note" id="noteName">–</div>
+      <div class="hz" id="hz"></div>
+      <svg class="gauge" viewBox="0 0 300 120" aria-hidden="true">
+        <path d="M50 110 A100 100 0 0 1 250 110" fill="none" stroke="var(--led-off)" stroke-width="10" stroke-linecap="round"/>
+        <line x1="150" y1="0" x2="150" y2="22" stroke="var(--ink)" stroke-width="3"/>
+        <text x="40" y="118" font-size="12" fill="var(--soft)" text-anchor="middle">−50</text>
+        <text x="260" y="118" font-size="12" fill="var(--soft)" text-anchor="middle">+50</text>
+        <g id="needle" transform="rotate(0 150 110)">
+          <line x1="150" y1="110" x2="150" y2="18" stroke="var(--led)" stroke-width="4" stroke-linecap="round"/>
+        </g>
+        <circle cx="150" cy="110" r="8" fill="var(--ink)"/>
+      </svg>
+      <p class="msg" id="tunerMsg">Odaberi instrument, uključi mikrofon i odsviraj jednu žicu.</p>
+      <button class="go" id="tunerGo">Uključi mikrofon</button>
+      <h2>Instrument</h2>
+      <select id="inst" aria-label="Instrument" style="width:100%;margin-top:10px">
+        <option value="prim" selected>Prim (bisernica)</option>
+        <option value="abrac">A-brač</option>
+        <option value="ebrac">E-brač (čelović)</option>
+        <option value="bugarija">Bugarija (E-kontra)</option>
+        <option value="celo">Čelo</option>
+        <option value="berde">Berde (bas)</option>
+        <option value="gitara">Gitara</option>
+      </select>
+      <p class="msg" id="instNote"></p>
+      <div class="strings" id="strings"></div>
+    </div>
+  </section>
+
+  <section id="t-chords">
+    <div class="panel">
+      <div class="keys">
+        <select id="root" aria-label="Tonalitet"></select>
+        <select id="mode" aria-label="Ljestvica">
+          <option value="maj">dur</option><option value="min">mol</option>
+        </select>
+      </div>
+      <div class="grid" id="chordGrid"></div>
+      <h2>Progresija</h2>
+      <div class="prog" id="prog"></div>
+      <div class="two">
+        <button class="go ghost" id="newProg">Nova progresija</button>
+        <button class="go" id="playProg">Sviraj</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<nav><div>
+  <button class="on" data-tab="t-metro">Metronom</button>
+  <button data-tab="t-tuner">Štimer</button>
+  <button data-tab="t-chords">Akordi</button>
+</div></nav>
+
+<script>
+let ctx;
+function ac(){ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); if(ctx.state==='suspended') ctx.resume(); return ctx; }
+
+/* tabs */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.tab));
+});
+
+/* ---------- metronome ---------- */
+let bpm=100, beats=4, running=false, nextTime=0, beatIdx=0, timer=null;
+const leds=document.getElementById('leds'), bpmVal=document.getElementById('bpmVal'),
+  bpmRange=document.getElementById('bpmRange'), tempoName=document.getElementById('tempoName');
+function tempoLabel(b){return b<60?'Largo':b<76?'Adagio':b<108?'Moderato':b<120?'Allegretto':b<168?'Allegro':b<200?'Presto':'Prestissimo'}
+function setBpm(v){bpm=Math.max(30,Math.min(250,Math.round(v)));bpmVal.textContent=bpm;bpmRange.value=bpm;tempoName.textContent=tempoLabel(bpm)}
+function drawLeds(){leds.innerHTML='';for(let i=0;i<beats;i++){const d=document.createElement('div');d.className='led'+(i===0&&accent.checked?' acc':'');leds.appendChild(d)}}
+const accent=document.getElementById('accent');
+bpmRange.oninput=e=>setBpm(+e.target.value);
+document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>setBpm(bpm+ +b.dataset.d));
+document.getElementById('beats').onchange=e=>{beats=+e.target.value;beatIdx=0;drawLeds()};
+accent.onchange=drawLeds;
+let taps=[];
+document.getElementById('tap').onclick=()=>{
+  const t=performance.now(); taps=taps.filter(x=>t-x<2500); taps.push(t);
+  if(taps.length>1){const iv=(taps[taps.length-1]-taps[0])/(taps.length-1);setBpm(60000/iv)}
+};
+function click(time,strong){
+  const c=ac(),o=c.createOscillator(),g=c.createGain();
+  o.frequency.value=strong?1600:1000;
+  g.gain.setValueAtTime(0.0001,time);g.gain.exponentialRampToValueAtTime(strong?0.9:0.5,time+0.002);
+  g.gain.exponentialRampToValueAtTime(0.0001,time+0.06);
+  o.connect(g).connect(c.destination);o.start(time);o.stop(time+0.07);
+}
+function schedule(){
+  const c=ac();
+  while(nextTime<c.currentTime+0.12){
+    const i=beatIdx, strong=i===0&&accent.checked;
+    click(nextTime,strong);
+    const delay=Math.max(0,(nextTime-c.currentTime)*1000);
+    setTimeout(()=>{const l=leds.children;for(let k=0;k<l.length;k++)l[k].classList.toggle('hit',k===i)},delay);
+    nextTime+=60/bpm; beatIdx=(beatIdx+1)%beats;
+  }
+}
+const metroGo=document.getElementById('metroGo');
+metroGo.onclick=()=>{
+  running=!running;
+  if(running){const c=ac();nextTime=c.currentTime+0.05;beatIdx=0;timer=setInterval(schedule,25);metroGo.textContent='Zaustavi';metroGo.classList.add('running')}
+  else{clearInterval(timer);metroGo.textContent='Pokreni';metroGo.classList.remove('running');[...leds.children].forEach(l=>l.classList.remove('hit'))}
+};
+drawLeds();setBpm(100);
+
+/* ---------- synth ---------- */
+function tone(freq,start,dur,vol=0.18){
+  const c=ac(),g=c.createGain();g.connect(c.destination);
+  g.gain.setValueAtTime(0.0001,start);g.gain.exponentialRampToValueAtTime(vol,start+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001,start+dur);
+  ['triangle','sine'].forEach((t,i)=>{const o=c.createOscillator();o.type=t;o.frequency.value=freq*(i?2:1);
+    const og=c.createGain();og.gain.value=i?0.25:1;o.connect(og).connect(g);o.start(start);o.stop(start+dur+0.05)});
+}
+const midiHz=m=>440*Math.pow(2,(m-69)/12);
+
+/* ---------- tuner ---------- */
+const NAMES=['C','Cis','D','Dis','E','F','Fis','G','Gis','A','B','H'];
+const INST={
+  prim:{s:[['e',2,76],['h',1,71],['fis',1,66],['cis',1,61]],note:'Prve dvije žice ugađaju se na isti ton (e²).'},
+  abrac:{s:[['a',1,69],['e',1,64],['h','',59],['fis','',54]],note:'Prve dvije žice ugađaju se na isti ton (a¹).'},
+  ebrac:{s:[['e',1,64],['h','',59],['fis','',54],['cis','',49]],note:'Prve dvije žice ugađaju se na isti ton (e¹), oktavu niže od prima.'},
+  bugarija:{s:[['e',1,64],['h','',59],['gis','',56],['e','',52]],note:'Prve dvije žice su iste (e¹). Prazne žice daju E-dur akord.'},
+  celo:{s:[['a','',57],['e','',52],['H','',47],['Fis','',42]],note:'Oktavu niže od A-brača.'},
+  berde:{s:[['G','',43],['D','',38],['A',',',33],['E',',',28]],note:'Ugađa se kao kontrabas. Duboke tonove odsviraj snažno i blizu mikrofona.'},
+  gitara:{s:[['e','',64],['H','',59],['G','',55],['D','',50],['A','',45],['E','',40]],note:'Standardno ugađanje, od najtanje žice.'}
+};
+const SUP={'1':'¹','2':'²','':'',',':'₁'};
+const sEl=document.getElementById('strings'),instSel=document.getElementById('inst'),instNote=document.getElementById('instNote');
+let curStrings=[];
+function drawStrings(){
+  const it=INST[instSel.value];curStrings=it.s;sEl.innerHTML='';sEl.style.setProperty('--n',it.s.length);
+  instNote.textContent=it.note;
+  it.s.forEach(([n,o,m],i)=>{const b=document.createElement('button');b.className='knob';b.dataset.m=m;
+    b.innerHTML=n+SUP[o]+'<small>'+(i+1)+'. žica</small>';b.style.height='64px';
+    b.setAttribute('aria-label','Sviraj ton '+n+o);
+    b.onclick=()=>tone(midiHz(m),ac().currentTime,2.2,0.25);sEl.appendChild(b)});
+}
+instSel.onchange=drawStrings;drawStrings();
+let stream=null, analyser=null, buf=null, raf=null;
+const noteName=document.getElementById('noteName'),hz=document.getElementById('hz'),needle=document.getElementById('needle'),
+  tunerMsg=document.getElementById('tunerMsg'),tunerGo=document.getElementById('tunerGo');
+function autoCorrelate(b,sr){
+  let n=b.length,rms=0;for(let i=0;i<n;i++)rms+=b[i]*b[i];rms=Math.sqrt(rms/n);if(rms<0.01)return -1;
+  const maxLag=Math.min(Math.floor(sr/35),Math.floor(n/2));
+  const c=new Float32Array(maxLag+2);const len=n-maxLag-2;
+  for(let lag=0;lag<maxLag+2;lag++){let sum=0;for(let j=0;j<len;j++)sum+=b[j]*b[j+lag];c[lag]=sum}
+  let d=1;while(d<maxLag&&c[d]>0)d++;
+  let mx=-1;for(let i=d;i<=maxLag;i++)if(c[i]>mx)mx=c[i];
+  if(mx<c[0]*0.5)return -1;
+  let mp=-1;for(let i=d;i<=maxLag;i++){if(c[i]>=mx*0.9&&c[i]>=c[i-1]&&c[i]>=c[i+1]){mp=i;break}}
+  if(mp<1||mp>maxLag)return -1;
+  const x1=c[mp-1],x2=c[mp],x3=c[mp+1],a=(x1+x3-2*x2)/2,bb=(x3-x1)/2;
+  const T=a?mp-bb/(2*a):mp;return sr/T;
+}
+let frame=0;
+let smooth=0;
+function loop(){
+  if((frame++)%2){raf=requestAnimationFrame(loop);return}
+  analyser.getFloatTimeDomainData(buf);
+  const f=autoCorrelate(buf,ctx.sampleRate);
+  if(f>35&&f<1500){
+    const m=12*Math.log2(f/440)+69,r=Math.round(m),cents=(m-r)*100;
+    smooth=smooth*0.7+cents*0.3;
+    noteName.innerHTML=NAMES[((r%12)+12)%12]+'<sub>'+(Math.floor(r/12)-1)+'</sub>';
+    hz.textContent=f.toFixed(1)+' Hz · '+(smooth>0?'+':'')+Math.round(smooth)+' c';
+    needle.setAttribute('transform','rotate('+Math.max(-50,Math.min(50,smooth))*1.3+' 150 110)');
+    [...sEl.children].forEach(b=>b.classList.toggle('match',+b.dataset.m===r));
+    tunerMsg.textContent=Math.abs(smooth)<5?'Točno u tonu.':smooth<0?'Prenisko, zategni.':'Previsoko, otpusti.';
+  }
+  raf=requestAnimationFrame(loop);
+}
+tunerGo.onclick=async()=>{
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;cancelAnimationFrame(raf);tunerGo.textContent='Uključi mikrofon';tunerGo.classList.remove('running');
+    noteName.textContent='–';hz.textContent='';tunerMsg.textContent='Mikrofon je isključen.';return}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    const c=ac(),src=c.createMediaStreamSource(stream);analyser=c.createAnalyser();analyser.fftSize=4096;buf=new Float32Array(analyser.fftSize);
+    src.connect(analyser);tunerGo.textContent='Isključi mikrofon';tunerGo.classList.add('running');tunerMsg.textContent='Slušam… odsviraj jednu žicu.';loop();
+  }catch(e){stream=null;tunerMsg.textContent='Mikrofon nije dostupan. Dopusti pristup mikrofonu u pregledniku ili otvori stranicu u novoj kartici. Do tada štimaj po referentnim tonovima ispod.'}
+};
+
+/* ---------- chords ---------- */
+const ROOTS=['C','C#','D','Eb','E','F','F#','G','Ab','A','B','H'];
+const rootSel=document.getElementById('root'),modeSel=document.getElementById('mode');
+ROOTS.forEach((n,i)=>{const o=document.createElement('option');o.value=i;o.textContent=n;rootSel.appendChild(o)});
+const SCALE={maj:[0,2,4,5,7,9,11],min:[0,2,3,5,7,8,10]};
+const QUAL={maj:['','m','m','','','m','dim'],min:['m','dim','','m','m','','']};
+const ROMAN={maj:['I','ii','iii','IV','V','vi','vii°'],min:['i','ii°','III','iv','v','VI','VII']};
+const PROGS={maj:[[0,4,5,3],[0,5,3,4],[1,4,0,0],[0,3,4,3],[5,3,0,4],[0,3,5,4]],min:[[0,5,2,6],[0,3,4,0],[0,6,5,6],[0,3,6,2],[0,5,3,4]]};
+let chords=[],prog=[];
+function build(){
+  const r=+rootSel.value,m=modeSel.value;
+  chords=SCALE[m].map((s,i)=>{
+    const root=(r+s)%12,third=SCALE[m][(i+2)%7]+(i+2>6?12:0),fifth=SCALE[m][(i+4)%7]+(i+4>6?12:0);
+    const base=48+r;return{name:ROOTS[root]+QUAL[m][i],roman:ROMAN[m][i],notes:[base+s,base+third,base+fifth]};
+  });
+  const g=document.getElementById('chordGrid');g.innerHTML='';
+  chords.forEach(ch=>{const b=document.createElement('button');b.className='chord';b.innerHTML='<b>'+ch.name+'</b><span>'+ch.roman+'</span>';
+    b.onclick=()=>playChord(ch,ac().currentTime,1.4);g.appendChild(b)});
+  newProg();
+}
+function playChord(ch,t,d){ch.notes.forEach(n=>tone(midiHz(n),t,d,0.14));tone(midiHz(ch.notes[0]-12),t,d,0.12)}
+function newProg(){
+  const list=PROGS[modeSel.value];let p;do{p=list[Math.floor(Math.random()*list.length)]}while(list.length>1&&p===prog);prog=p;
+  const el=document.getElementById('prog');el.innerHTML='';
+  prog.forEach(i=>{const b=document.createElement('button');b.className='chord';b.innerHTML='<b>'+chords[i].name+'</b><span>'+chords[i].roman+'</span>';
+    b.onclick=()=>playChord(chords[i],ac().currentTime,1.4);el.appendChild(b)});
+}
+document.getElementById('newProg').onclick=newProg;
+document.getElementById('playProg').onclick=()=>{
+  const c=ac(),beat=60/Math.min(bpm,140),bar=beat*4,els=document.getElementById('prog').children;
+  prog.forEach((i,k)=>{const t=c.currentTime+0.05+k*bar;playChord(chords[i],t,bar*0.95);
+    setTimeout(()=>{[...els].forEach((e,j)=>e.classList.toggle('lit',j===k))},(t-c.currentTime)*1000)});
+  setTimeout(()=>[...els].forEach(e=>e.classList.remove('lit')),(0.05+prog.length*bar)*1000);
+};
+rootSel.onchange=build;modeSel.onchange=build;build();
+</script>
+</body>
+</html>
