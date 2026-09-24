@@ -4,37 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tamburaš</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪕</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<meta name="description" content="Metronom, štimer i akordi za tamburaše — prim, brač, bugarija, čelo, berde i gitara. Radi u pregledniku, zvuk s mikrofona ne napušta tvoj uređaj.">
+<link rel="icon" href="zajednicko/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="zajednicko/apple-touch-icon.png">
+<link rel="stylesheet" href="zajednicko/app-bonic.css?v=13129963">
 <style>
+/* boje i pisma iz app-bonic alata (svijetlo, tamnoplava + crvena) */
 :root{
-  --body:#8fc2ae; --panel:#a9d3c2; --ink:#12322a; --soft:#2f5a4d;
-  --knob:#f3ead2; --led:#ff5a3c; --led-off:#6d9a88; --line:#5f927e;
-  box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
+  --body:#f6f7fb; --panel:#ffffff; --ink:#16305c; --soft:#4d586b;
+  --knob:#eef2f9; --led:#d42a34; --led-off:#c9d3e6; --line:#dfe4ee;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --body:#132a26; --panel:#1c3a34; --ink:#d9efe5; --soft:#94bcae;
-    --knob:#e8dfc4; --led:#ff6a4a; --led-off:#2f544b; --line:#2f544b;
-  }
-}
-:root[data-theme="dark"]{
-  --body:#132a26; --panel:#1c3a34; --ink:#d9efe5; --soft:#94bcae;
-  --knob:#e8dfc4; --led:#ff6a4a; --led-off:#2f544b; --line:#2f544b;
-}
-*,*::before,*::after{box-sizing:inherit}
-html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;min-height:100%;background:var(--body);color:var(--ink);
-  font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
-  -webkit-tap-highlight-color:transparent}
-.wrap{max-width:460px;margin:0 auto;padding:20px 18px 110px}
-h1{font-size:1.1rem;font-weight:600;margin:4px 0 18px;color:var(--soft)}
-.panel{background:var(--panel);border-radius:22px;padding:22px 18px;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 1px 0 var(--line)}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--body);color:var(--ink);-webkit-tap-highlight-color:transparent;padding-bottom:calc(64px + env(safe-area-inset-bottom,0px))}
+.wrap{width:100%;max-width:520px;margin:0 auto;padding:26px 18px 30px}
+h1{font:800 clamp(34px,9vw,46px)/.95 var(--naslovni);text-transform:uppercase;color:var(--ink);margin:0 0 6px}
+h1::after{content:"";display:block;width:56px;height:4px;background:var(--led);margin-top:10px}
+.uvod{color:var(--soft);font-size:15px;margin:0 0 18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 18px;box-shadow:var(--sjena)}
 section{display:none}
 section.on{display:block}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -45,21 +31,21 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid 
 .led{width:26px;height:26px;border-radius:50%;background:var(--led-off);transition:background .05s}
 .led.acc{width:34px;height:34px}
 .led.hit{background:var(--led);box-shadow:0 0 18px var(--led)}
-.bpm{text-align:center;font-size:clamp(5rem,26vw,7.5rem);font-weight:800;line-height:.9;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.bpm{font-family:var(--naslovni);text-align:center;font-size:clamp(5rem,26vw,7.5rem);font-weight:800;line-height:.9;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
 .bpm small{display:block;font-size:1rem;font-weight:400;letter-spacing:0;color:var(--soft);margin-top:8px}
 .row{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:18px}
-.knob{background:var(--knob);color:#12322a;border:none;border-radius:999px;min-width:54px;height:54px;font-size:1.3rem;font-weight:600;padding:0 16px;
+.knob{background:var(--knob);color:#16305c;border:none;border-radius:999px;min-width:54px;height:54px;font-size:1.3rem;font-weight:600;padding:0 16px;
   box-shadow:0 3px 0 rgba(0,0,0,.25)}
 .knob:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
 input[type=range]{width:100%;margin-top:18px;accent-color:var(--ink)}
 .go{display:block;width:100%;margin-top:20px;height:64px;border:none;border-radius:18px;background:var(--ink);color:var(--body);font-size:1.25rem;font-weight:800}
 .go.running{background:var(--led);color:#fff}
 .opts{display:flex;gap:12px;margin-top:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-select{font:inherit;background:var(--knob);color:#12322a;border:none;border-radius:12px;padding:10px 12px}
+select{width:auto;font:inherit;font-weight:700;background:var(--knob);color:#16305c;border:none;border-radius:12px;padding:10px 12px}
 label{font-size:.95rem;color:var(--soft)}
 
 /* tuner */
-.note{text-align:center;font-size:clamp(5rem,28vw,8rem);font-weight:800;line-height:1}
+.note{font-family:var(--naslovni);text-align:center;font-size:clamp(5rem,28vw,8rem);font-weight:800;line-height:1}
 .note sub{font-size:.3em;font-weight:600;vertical-align:baseline;color:var(--soft)}
 .hz{text-align:center;color:var(--soft);font-variant-numeric:tabular-nums;min-height:1.4em}
 .gauge{display:block;width:100%;max-width:320px;margin:10px auto 0}
@@ -74,7 +60,7 @@ h2{font-size:1rem;font-weight:600;margin:24px 0 0;color:var(--soft)}
 .keys{display:flex;gap:10px}
 .keys select{flex:1}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px;margin-top:16px}
-.chord{background:var(--knob);color:#12322a;border:none;border-radius:16px;padding:14px 6px;box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.chord{background:var(--knob);color:#16305c;border:none;border-radius:16px;padding:14px 6px;box-shadow:0 3px 0 rgba(0,0,0,.25)}
 .chord b{display:block;font-size:1.35rem}
 .chord span{font-size:.85rem;opacity:.7}
 .chord.lit{background:var(--led);color:#fff}
@@ -85,16 +71,18 @@ h2{font-size:1rem;font-weight:600;margin:24px 0 0;color:var(--soft)}
 .ghost{background:transparent !important;color:var(--ink) !important;border:2px solid var(--ink) !important}
 
 /* tabs */
-nav{position:fixed;left:0;right:0;bottom:0;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--ink);display:flex;justify-content:center}
-nav div{display:flex;max-width:460px;width:100%}
-nav button{flex:1;border:none;background:none;color:var(--body);opacity:.6;padding:16px 0;font-size:1rem;font-weight:600}
-nav button.on{opacity:1;box-shadow:inset 0 3px 0 var(--led)}
+nav.kartice{z-index:20;position:fixed;left:0;right:0;bottom:0;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--ink);display:flex;justify-content:center}
+nav.kartice div{display:flex;max-width:460px;width:100%}
+nav.kartice button{flex:1;border:none;background:none;color:var(--body);opacity:.6;padding:16px 0;font-size:1rem;font-weight:600}
+nav.kartice button.on{opacity:1;box-shadow:inset 0 3px 0 var(--led)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
-<body>
+<body data-alat="tamburas">
+<header class="ab-vrh"></header>
 <div class="wrap">
   <h1>Tamburaš</h1>
+  <p class="uvod">Metronom, štimer i akordi za tamburaše. Zvuk s mikrofona obrađuje se samo na tvom uređaju.</p>
 
   <section id="t-metro" class="on">
     <div class="panel">
@@ -172,19 +160,22 @@ nav button.on{opacity:1;box-shadow:inset 0 3px 0 var(--led)}
   </section>
 </div>
 
-<nav><div>
+<nav class="kartice" aria-label="Alati"><div>
   <button class="on" data-tab="t-metro">Metronom</button>
   <button data-tab="t-tuner">Štimer</button>
   <button data-tab="t-chords">Akordi</button>
 </div></nav>
+
+<footer class="ab-dno"></footer>
+<script src="zajednicko/app-bonic.js?v=4d4b870e"></script>
 
 <script>
 let ctx;
 function ac(){ if(!ctx) ctx=new (window.AudioContext||window.webkitAudioContext)(); if(ctx.state==='suspended') ctx.resume(); return ctx; }
 
 /* tabs */
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
+document.querySelectorAll('nav.kartice button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav.kartice button').forEach(x=>x.classList.toggle('on',x===b));
   document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===b.dataset.tab));
 });
 
